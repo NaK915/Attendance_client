@@ -1,23 +1,17 @@
 import 'package:attendance_client/login.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.dark(),
-      home: const Login(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  var name = preferences.getString('name');
+  print(name);
+  runApp(MaterialApp(
+    theme: ThemeData.dark(),
+    home: name == null ? const Login() : const MyHomePage(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
 class MyHomePage extends StatefulWidget {
@@ -30,6 +24,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Icon buticon = const Icon(Icons.bluetooth);
   String button = 'Start';
   String text = 'Wait for the teacher to start collecting attendance';
+  String erno = '';
   onClick() {
     setState(() {
       buticon = const Icon(Icons.bluetooth_connected);
@@ -38,12 +33,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('name');
+    prefs.remove('erno');
+    prefs.remove('course');
+    prefs.remove('year');
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext ctx) => const Login()));
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
           title: const Text('Mark Attendance'),
+          actions: [
+            MaterialButton(
+              onPressed: logout,
+              child: const Icon(Icons.logout),
+            )
+          ],
         ),
         body: Center(
           child: SingleChildScrollView(

@@ -1,3 +1,4 @@
+import 'package:attendance_client/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,12 +15,31 @@ class _Login extends State<Login> {
   TextEditingController erno = TextEditingController();
   TextEditingController course = TextEditingController();
   TextEditingController year = TextEditingController();
-  onClick() {}
+  onClick() async {
+    if (name.text == '' ||
+        erno.text == '' ||
+        course.text == '' ||
+        year.text == '') {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill in all the values')));
+      return;
+    }
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('name', name.text);
+    prefs.setString('erno', erno.text);
+    prefs.setString('course', course.text);
+    prefs.setString('year', year.text);
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext ctx) => const MyHomePage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return (Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -90,7 +110,7 @@ class _Login extends State<Login> {
                     Text('Login')
                   ]),
                 ),
-              )
+              ),
             ],
           ),
         ),
